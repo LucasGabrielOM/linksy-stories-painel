@@ -1,24 +1,48 @@
 # InScope Marketing — Painel de Stories
 
-Painel semanal de planejamento de Stories: distribuição da semana, grade,
-roteiro de gravação, escala, banco de ideias, narrativas, formatos, banco de
-imagens, diagnóstico do estrategista e performance.
+Painel de planejamento de Stories, multi-empresa: a agência InScope Marketing
+gerencia várias empresas-cliente, cada uma com seus próprios usuários e sua
+própria conexão de Instagram.
+
+**Pra colocar isso no ar do zero (Neon + Vercel), siga o [SETUP.md](SETUP.md).**
+
+## Arquitetura
+
+- **Front-end**: página única (`index.html`), sem build — HTML, CSS e
+  JavaScript num arquivo só. Ícones são um sprite SVG inline; fontes
+  (Archivo, Inter, Source Serif 4) via Google Fonts.
+- **Backend**: funções serverless em `api/*.js`, hospedadas na Vercel.
+- **Banco**: Postgres no [Neon](https://neon.tech), schema em
+  [`db/schema.sql`](db/schema.sql).
+- **Instagram**: dados buscados via [Windsor.ai](https://windsor.ai)
+  (`api/instagram-dados.js`), com a chave/config guardada por empresa.
+
+## Modelo de dados: agência > empresas > usuários
+
+- **Agência** (`empresa_id = null`, papel `agencia_admin`): enxerga e
+  gerencia todas as empresas-cliente. Troca entre elas pelo seletor no topo
+  do painel.
+- **Empresa-cliente**: tem seus próprios usuários (`empresa_admin` ou
+  `membro`) e seu próprio conteúdo (ideias, imagens, links, histórico de
+  stories) — nunca visível pra outra empresa.
+
+## Autenticação
+
+Login de verdade: senha com hash (bcrypt), sessão como token opaco num
+cookie `httpOnly` (nunca lido pelo JavaScript do navegador), validada no
+backend a cada chamada de API. Nada de senha ou sessão fica no
+`localStorage` nem no código-fonte.
+
+O primeiro usuário (admin da agência) é criado rodando um SQL diretamente no
+Neon — veja o passo 2 do [SETUP.md](SETUP.md).
 
 ## Navegação
 
-A barra lateral é agrupada pela ordem real do fluxo de trabalho:
-
-- **Visão Geral** — painel do estado da semana
+- **Visão Geral** — estado da semana da empresa selecionada
 - **Planejamento** — Escala de Stories → Grade da Semana → Roteiro de Gravação
 - **Conteúdo** — Banco de Ideias, Narrativas da Semana, Formatos InScope, Banco de Imagens
 - **Resultados** — Diagnóstico, Performance
-
-## Estrutura
-
-O painel é uma **página única, autocontida**: todo o HTML, CSS e JavaScript
-vivem em [`index.html`](index.html). Os ícones são um sprite SVG inline (sem
-biblioteca externa); as fontes (Archivo, Inter e Source Serif 4) são
-carregadas via Google Fonts. Não há build nem dependências.
+- **Administração** — Empresas (só agência) e Usuários
 
 ## Design
 
@@ -40,54 +64,25 @@ texto, **Source Serif 4** itálico para o destaque de marca.
 
 ## Rodando localmente
 
-Basta abrir `index.html` no navegador. Para servir por HTTP:
-
 ```bash
-python -m http.server 8000
+npm install
 ```
 
-E acessar http://localhost:8000
+O front-end (`index.html`) abre direto no navegador, mas as chamadas
+`/api/*` só funcionam rodando via `vercel dev` (com `DATABASE_URL` num
+`.env.local`) ou já publicado na Vercel — veja o [SETUP.md](SETUP.md).
 
-## Login e administração de usuários
+## O que ainda não está aqui
 
-O painel fica atrás de uma tela de login. Credencial inicial (troque assim
-que entrar):
-
-- **E-mail:** `admin@inscopemarketing.com`
-- **Senha:** `inscope2025`
-
-Um usuário com papel **Admin** vê um grupo extra na navegação,
-**Administração → Usuários**, onde dá pra criar, remover e redefinir a senha
-de outras contas. Ele não deixa remover o próprio usuário logado nem o
-último admin restante, pra ninguém trancar o próprio acesso.
-
-**Isso não é autenticação real.** É um gate de interface: usuários, senhas
-(em texto puro) e sessão ficam salvos no `localStorage` do navegador de cada
-pessoa, lidos e verificados só em JavaScript no cliente. Qualquer um que
-abra o devtools ou leia o código-fonte (o repositório é público) consegue
-ver a lógica, ler o que está salvo ou pular a tela de login chamando as
-funções diretamente. Ele **não protege** as rotas `/api/*` que o painel
-consome — elas continuam abertas independente de quem "logou" aqui. Serve
-para manter visitantes casuais fora e organizar quem tem cada papel, não
-para guardar dado sensível. Pra autenticação de verdade, isso precisa virar
-sessão validada por um backend (ex.: Cloudflare Access, ou o próprio backend
-de `/api/*` com senhas com hash e cookie `httpOnly`).
-
-## Backend
-
-O painel consome endpoints relativos (`/api/...`) que **não fazem parte deste
-repositório** — são serverless functions (histórico de stories, banco de
-ideias/imagens/links, dados do Instagram, integração com ClickUp etc.). Sem
-esse backend, as views carregam mas os dados aparecem como indisponíveis.
-
-## Deploy
-
-Qualquer host de site estático serve o front-end. Na Vercel, importe o
-repositório e aceite os padrões — sem framework, sem comando de build,
-diretório de saída na raiz. As rotas `/api/*` precisam ser recriadas à parte.
+Gerar sequência de Stories com IA, criar tarefas no ClickUp e o diagnóstico
+automático da semana existiam no protótipo anterior mas dependem de outras
+chaves de API (LLM, ClickUp) que ainda não foram configuradas — os botões
+correspondentes no painel vão dar erro até isso ser feito. Detalhes no fim
+do [SETUP.md](SETUP.md).
 
 ## Origem
 
-O front-end deste repositório foi importado do painel publicado em
-https://linksy-stories-painel.vercel.app/ e rebatizado com a identidade da
-InScope Marketing.
+Este projeto começou como uma cópia do painel publicado em
+https://linksy-stories-painel.vercel.app/, foi rebatizado com a identidade
+da InScope Marketing e depois reconstruído com autenticação e banco de
+dados reais para suportar várias empresas-cliente.

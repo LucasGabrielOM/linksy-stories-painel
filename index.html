@@ -28,6 +28,7 @@
 <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.2" cy="9" r="2.6"/><path d="M15.6 13.2c2.5.5 4.4 2.7 4.4 5.4"/></symbol>
 <symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 00-1 1v14a1 1 0 001 1h4M16 16l4-4-4-4M20 12H9"/></symbol>
 <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M7.5 10.5V7a4.5 4.5 0 019 0v3.5"/></symbol>
+<symbol id="icon-building" viewBox="0 0 24 24"><rect x="4" y="3" width="11" height="18" rx="1"/><path d="M15 9h5v12h-5M7.5 7h1M11 7h1M7.5 11h1M11 11h1M7.5 15h1M11 15h1"/></symbol>
 <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13M10 11v6M14 11v6"/></symbol>
 <symbol id="icon-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></symbol>
 <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></symbol>
@@ -318,6 +319,8 @@ body{
 }
 .chip-icon.pending .chip-status{background:var(--warn);}
 .topbar-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-left:auto;}
+.empresa-switcher{display:flex;align-items:center;gap:8px;color:var(--ink-soft);}
+.empresa-switcher .field-select{width:auto;min-width:160px;padding:7px 10px;font-size:.83rem;}
 .topbar-user{display:flex;align-items:center;gap:10px;}
 .topbar-user-info{display:flex;flex-direction:column;align-items:flex-end;line-height:1.3;}
 .topbar-user-info strong{font-size:.83rem;font-weight:600;}
@@ -854,8 +857,8 @@ textarea.escala-input{
       <button class="btn-primary" type="submit" style="width:100%;">Entrar</button>
     </form>
     <div class="auth-note">
-      Protótipo sem backend próprio — o acesso é controlado só neste navegador.
-      <button type="button" id="showDemoCreds" class="link-btn">Ver credencial de demonstração</button>
+      Não tem uma conta? Peça pra um administrador da sua empresa te cadastrar
+      em Administração &gt; Usuários.
     </div>
   </div>
 </div>
@@ -890,6 +893,7 @@ textarea.escala-input{
       </div>
       <div class="nav-group only-admin" id="navAdminGroup" hidden>
         <div class="nav-group-label">Administração</div>
+      <button class="rail-btn only-agencia" hidden data-view="empresas"><span class="icon-chip"><svg class="icon"><use href="#icon-building"/></svg></span><span class="label">Empresas</span></button>
       <button class="rail-btn" data-view="usuarios"><span class="icon-chip"><svg class="icon"><use href="#icon-users"/></svg></span><span class="label">Usuários</span></button>
       </div>
     </nav>
@@ -902,6 +906,10 @@ textarea.escala-input{
     <header class="topbar">
       <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu"><svg class="icon"><use href="#icon-menu"/></svg></button>
       <div class="topbar-week">Semana de <strong id="semanaLabel">—</strong> · proporção alvo <strong>60% bastidor / 40% estratégico</strong></div>
+      <div class="empresa-switcher only-agencia" id="empresaSwitcherWrap" hidden>
+        <svg class="icon"><use href="#icon-building"/></svg>
+        <select id="empresaSwitcher" class="field-select"></select>
+      </div>
       <div class="topbar-right">
         <div class="chips">
           <span class="chip-icon ok" title="Agenda (reuniões) conectada"><svg class="icon"><use href="#icon-calendar"/></svg><span class="chip-status"></span></span>
@@ -1334,12 +1342,69 @@ textarea.escala-input{
         <div class="grid-3" id="perfGrid" style="margin-top:16px;"></div>
       </section>
 
-      <!-- USUÁRIOS (só admin) -->
+      <!-- EMPRESAS (só admin da agência) -->
+      <section class="view only-agencia" id="empresas" hidden>
+        <div class="view-head">
+          <div class="eyebrow">Administração</div>
+          <h2>Empresas</h2>
+          <p>Cada empresa-cliente tem os próprios usuários e a própria conexão com o Instagram (via Windsor.ai). Use o seletor no topo pra entrar nos dados de uma empresa específica.</p>
+        </div>
+
+        <div class="card">
+          <h3>Nova empresa</h3>
+          <div class="sub">O identificador é só um texto curto pra uso interno (ex.: "clinica-dr-fulano").</div>
+          <form id="formNovaEmpresa" style="display:flex;flex-direction:column;gap:12px;margin-top:6px;max-width:420px;">
+            <div>
+              <div class="field-label">Nome</div>
+              <input type="text" id="novaEmpresaNome" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" required>
+            </div>
+            <div>
+              <div class="field-label">Identificador</div>
+              <input type="text" id="novaEmpresaSlug" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" placeholder="ex.: clinica-dr-fulano" required>
+            </div>
+            <button class="btn-primary" type="submit" style="align-self:flex-start;margin-top:0;">Criar empresa</button>
+          </form>
+          <div class="hint" id="novaEmpresaStatus"></div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <h3>Empresas cadastradas</h3>
+          <div class="sub">Clique em uma empresa pra configurar a conexão com o Instagram dela (Windsor.ai).</div>
+          <div id="empresasGrid" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
+        </div>
+      </section>
+
+      <div class="story-modal" id="empresaModal" hidden>
+        <div class="story-modal-card">
+          <button class="story-modal-close" id="empresaModalClose" type="button" aria-label="Fechar"><svg class="icon"><use href="#icon-close"/></svg></button>
+          <h3 id="empresaModalTitulo">Configurar empresa</h3>
+          <p class="hint">Dados da conta Windsor.ai desta empresa (Settings &gt; API no painel da Windsor).</p>
+          <form id="formEmpresaConfig" style="display:flex;flex-direction:column;gap:12px;margin-top:10px;">
+            <input type="hidden" id="empresaConfigId">
+            <div>
+              <div class="field-label">Chave de API (Windsor)</div>
+              <input type="text" id="empresaWindsorApiKey" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;">
+            </div>
+            <div>
+              <div class="field-label">Conector</div>
+              <input type="text" id="empresaWindsorConnector" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" placeholder="instagram-business">
+            </div>
+            <div>
+              <div class="field-label">ID da conta</div>
+              <input type="text" id="empresaWindsorAccountId" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;">
+            </div>
+            <button class="btn-primary" type="submit" style="align-self:flex-start;margin-top:0;">Salvar</button>
+          </form>
+          <div class="hint" id="empresaConfigStatus"></div>
+        </div>
+      </div>
+
+      <!-- USUÁRIOS -->
       <section class="view only-admin" id="usuarios" hidden>
         <div class="view-head">
           <div class="eyebrow">Administração</div>
           <h2>Usuários</h2>
-          <p>Controle quem entra neste painel. Isso fica salvo só neste navegador — é um controle de acesso do protótipo, não uma autenticação de servidor.</p>
+          <p>Controle quem entra neste painel. Isso é validado pelo backend, com senha protegida por hash — não fica salvo em texto puro em lugar nenhum.</p>
         </div>
 
         <div class="card">
@@ -1358,11 +1423,11 @@ textarea.escala-input{
               <div class="field-label">Senha temporária</div>
               <input type="text" id="novoUsuarioSenha" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" required>
             </div>
-            <div>
+            <div class="only-agencia-empresa" id="novoUsuarioPapelWrap">
               <div class="field-label">Papel</div>
               <select id="novoUsuarioPapel" class="field-select">
                 <option value="membro">Membro</option>
-                <option value="admin">Admin</option>
+                <option value="empresa_admin">Admin da empresa</option>
               </select>
             </div>
             <button class="btn-primary" type="submit" style="align-self:flex-start;margin-top:0;">Criar usuário</button>
@@ -1372,7 +1437,7 @@ textarea.escala-input{
 
         <div class="card" style="margin-top:20px;">
           <h3>Usuários cadastrados</h3>
-          <div class="sub">Lista local a este navegador — outros dispositivos não compartilham essa lista.</div>
+          <div class="sub" id="usuariosContexto">Carregando...</div>
           <div id="usuariosGrid" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
         </div>
       </section>
@@ -1494,186 +1559,194 @@ textarea.escala-input{
   }
 
   /* =====================================================================
-     Autenticação e administração de usuários
-     Protótipo sem backend: a lista de usuários e a sessão ficam salvas no
-     localStorage DESTE navegador. Isso serve como uma trava de acesso na
-     interface, não como segurança de verdade — qualquer pessoa com acesso
-     ao devtools ou ao código-fonte consegue ler ou contornar isso, e as
-     rotas /api/* usadas pelo painel continuam abertas independente do
-     login. Não guarde aqui nenhuma senha que também seja usada em outro
-     lugar.
+     Autenticação real (Neon + sessão em cookie httpOnly, ver /api/auth/*)
+     e administração multi-empresa (agência > empresas-cliente > usuários).
      ===================================================================== */
-  var LS_USUARIOS = 'inscope_usuarios';
-  var LS_SESSAO = 'inscope_sessao';
-  // Alguns navegadores/contextos bloqueiam localStorage (aba anônima restrita,
-  // política corporativa, preview em iframe/sandbox). Nesses casos o painel
-  // continua funcionando dentro da mesma sessão de página, só não persiste
-  // entre recarregamentos — por isso todo acesso ao storage é protegido e
-  // cai num fallback em memória.
-  var usuariosMemoria = null;
-  var sessaoMemoria = null;
 
-  function gerarId(){
-    return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  }
+  // Todo fetch('/api/...') do resto do arquivo passa por aqui: garante que
+  // o cookie de sessão vai junto (credentials) e, quando a agência está
+  // vendo os dados de uma empresa específica, anexa esse ?empresaId=
+  // automaticamente — sem precisar editar cada chamada existente.
+  var _fetchNativo = window.fetch.bind(window);
+  window.fetch = function(url, opts){
+    opts = opts || {};
+    if(typeof url === 'string' && url.indexOf('/api/') === 0){
+      opts.credentials = opts.credentials || 'same-origin';
+      var empresaId = (sessaoAtual && sessaoAtual.papel === 'agencia_admin') ? empresaAtualId : null;
+      if(empresaId){
+        if(opts.method && opts.method.toUpperCase() !== 'GET' && opts.body){
+          try{
+            var corpo = JSON.parse(opts.body);
+            if(corpo && typeof corpo === 'object' && corpo.empresaId === undefined){
+              corpo.empresaId = empresaId;
+              opts.body = JSON.stringify(corpo);
+            }
+          } catch(e){}
+        } else if(url.indexOf('empresaId=') === -1){
+          url += (url.indexOf('?') === -1 ? '?' : '&') + 'empresaId=' + encodeURIComponent(empresaId);
+        }
+      }
+    }
+    return _fetchNativo(url, opts);
+  };
 
-  function getUsuarios(){
-    try{
-      var raw = localStorage.getItem(LS_USUARIOS);
-      if(raw) return JSON.parse(raw);
-    } catch(e){}
-    if(usuariosMemoria) return usuariosMemoria;
-    var seed = [{
-      id: gerarId(),
-      nome: 'Administrador',
-      email: 'admin@inscopemarketing.com',
-      senha: 'inscope2025',
-      papel: 'admin'
-    }];
-    usuariosMemoria = seed;
-    try{ localStorage.setItem(LS_USUARIOS, JSON.stringify(seed)); } catch(e){}
-    return seed;
-  }
-  function salvarUsuarios(lista){
-    usuariosMemoria = lista;
-    try{ localStorage.setItem(LS_USUARIOS, JSON.stringify(lista)); } catch(e){}
-  }
-  function getSessao(){
-    try{
-      var raw = localStorage.getItem(LS_SESSAO);
-      return raw ? JSON.parse(raw) : sessaoMemoria;
-    } catch(e){ return sessaoMemoria; }
-  }
-  function salvarSessao(usuario){
-    var sessao = { id: usuario.id, nome: usuario.nome, email: usuario.email, papel: usuario.papel };
-    sessaoMemoria = sessao;
-    try{ localStorage.setItem(LS_SESSAO, JSON.stringify(sessao)); } catch(e){}
-  }
-  function limparSessao(){
-    sessaoMemoria = null;
-    try{ localStorage.removeItem(LS_SESSAO); } catch(e){}
+  function apiFetch(url, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+    return fetch(url, opts).then(function(r){
+      return r.json().catch(function(){ return {}; }).then(function(data){
+        return { ok: r.ok, status: r.status, data: data };
+      });
+    });
   }
 
   var authScreen = document.getElementById('authScreen');
   var appRoot = document.getElementById('appRoot');
   var loginForm = document.getElementById('loginForm');
   var loginStatus = document.getElementById('loginStatus');
+  var empresaSwitcherWrap = document.getElementById('empresaSwitcherWrap');
+  var empresaSwitcher = document.getElementById('empresaSwitcher');
 
-  function aplicarPermissoesDeAdmin(usuario){
-    var ehAdmin = usuario.papel === 'admin';
+  var sessaoAtual = null;     // { id, nome, email, papel, empresaId }
+  var empresaAtualId = null;  // empresa que a agência está visualizando agora (null = equipe da agência)
+  var empresasDaAgencia = [];
+
+  var ROTULOS_PAPEL = { agencia_admin: 'Admin da agência', empresa_admin: 'Admin', membro: 'Membro' };
+
+  function aplicarPermissoes(){
+    var papel = sessaoAtual.papel;
+    var ehAdmin = papel === 'agencia_admin' || papel === 'empresa_admin';
+    var ehAgencia = papel === 'agencia_admin';
     document.querySelectorAll('.only-admin').forEach(function(el){ el.hidden = !ehAdmin; });
-    if(ehAdmin) renderUsuarios();
+    document.querySelectorAll('.only-agencia').forEach(function(el){ el.hidden = !ehAgencia; });
+    var papelWrap = document.getElementById('novoUsuarioPapelWrap');
+    if(papelWrap) papelWrap.hidden = ehAgencia && !empresaAtualId;
   }
 
-  function entrarNoApp(usuario){
+  function popularSwitcherEmpresas(){
+    if(!empresaSwitcher) return;
+    empresaSwitcher.innerHTML =
+      '<option value="">— equipe da agência —</option>' +
+      empresasDaAgencia.map(function(e){ return '<option value="'+e.id+'">'+escapeHtml(e.nome)+'</option>'; }).join('');
+    empresaSwitcher.value = empresaAtualId || '';
+  }
+
+  function recarregarConteudoDaEmpresa(){
+    if(document.getElementById('temasGrid') && typeof carregarTemas === 'function') carregarTemas();
+    if(document.getElementById('imagensGrid') && typeof carregarImagens === 'function') carregarImagens();
+    if(document.getElementById('linksLista') && typeof carregarLinks === 'function') carregarLinks();
+    if(typeof atualizarVisaoGeral === 'function') atualizarVisaoGeral();
+    if(sessaoAtual.papel === 'agencia_admin' || sessaoAtual.papel === 'empresa_admin') renderUsuarios();
+    if(sessaoAtual.papel === 'agencia_admin') renderEmpresas();
+  }
+
+  function entrarNoApp(usuario, empresas){
+    sessaoAtual = usuario;
+    empresasDaAgencia = empresas || [];
     if(authScreen) authScreen.hidden = true;
     if(appRoot) appRoot.hidden = false;
     var nomeEl = document.getElementById('userNome');
     if(nomeEl) nomeEl.textContent = usuario.nome;
     var papelEl = document.getElementById('userPapel');
-    if(papelEl) papelEl.textContent = usuario.papel === 'admin' ? 'Admin' : 'Membro';
-    aplicarPermissoesDeAdmin(usuario);
+    if(papelEl) papelEl.textContent = ROTULOS_PAPEL[usuario.papel] || usuario.papel;
+    if(empresaSwitcherWrap) empresaSwitcherWrap.hidden = usuario.papel !== 'agencia_admin';
+    popularSwitcherEmpresas();
+    aplicarPermissoes();
+    recarregarConteudoDaEmpresa();
   }
 
-  (function initAuth(){
-    getUsuarios();
-    var sessao = getSessao();
-    if(sessao){
-      var atual = getUsuarios().find(function(u){ return u.id === sessao.id; });
-      if(atual){ entrarNoApp(atual); return; }
-      limparSessao();
-    }
+  function mostrarLogin(){
+    sessaoAtual = null;
     if(authScreen) authScreen.hidden = false;
     if(appRoot) appRoot.hidden = true;
+  }
+
+  (function carregarSessaoInicial(){
+    apiFetch('/api/auth/me').then(function(r){
+      if(r.ok) entrarNoApp(r.data.usuario, r.data.empresas);
+      else mostrarLogin();
+    }).catch(function(){ mostrarLogin(); });
   })();
 
   if(loginForm){
     loginForm.addEventListener('submit', function(e){
       e.preventDefault();
-      var email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      var email = document.getElementById('loginEmail').value.trim();
       var senha = document.getElementById('loginSenha').value;
-      var achado = getUsuarios().find(function(u){
-        return u.email.toLowerCase() === email && u.senha === senha;
-      });
-      if(!achado){
-        loginStatus.textContent = 'E-mail ou senha incorretos.';
-        return;
-      }
-      loginStatus.textContent = '';
-      salvarSessao(achado);
-      entrarNoApp(achado);
-    });
-  }
-
-  var showDemoCreds = document.getElementById('showDemoCreds');
-  if(showDemoCreds){
-    showDemoCreds.addEventListener('click', function(){
-      var usuarios = getUsuarios();
-      var admin = usuarios.find(function(u){ return u.papel === 'admin'; }) || usuarios[0];
-      if(!admin) return;
-      document.getElementById('loginEmail').value = admin.email;
-      document.getElementById('loginSenha').value = admin.senha;
+      loginStatus.textContent = 'Entrando...';
+      apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: email, senha: senha }) })
+        .then(function(r){
+          if(!r.ok){ loginStatus.textContent = (r.data && r.data.error) || 'Não consegui entrar.'; return; }
+          loginStatus.textContent = '';
+          return apiFetch('/api/auth/me').then(function(r2){
+            if(r2.ok) entrarNoApp(r2.data.usuario, r2.data.empresas);
+          });
+        })
+        .catch(function(){ loginStatus.textContent = 'Erro de conexão. Tente de novo.'; });
     });
   }
 
   var btnLogout = document.getElementById('btnLogout');
   if(btnLogout){
     btnLogout.addEventListener('click', function(){
-      limparSessao();
-      location.reload();
+      apiFetch('/api/auth/logout', { method: 'POST' }).then(mostrarLogin).catch(mostrarLogin);
     });
   }
 
-  /* ---- painel: administração de usuários ---- */
+  if(empresaSwitcher){
+    empresaSwitcher.addEventListener('change', function(){
+      empresaAtualId = empresaSwitcher.value || null;
+      aplicarPermissoes();
+      recarregarConteudoDaEmpresa();
+    });
+  }
+
+  /* ---- painel: usuários (escopados à empresa selecionada, ou à agência) ---- */
   var usuariosGrid = document.getElementById('usuariosGrid');
+  var usuariosContexto = document.getElementById('usuariosContexto');
   var formNovoUsuario = document.getElementById('formNovoUsuario');
   var novoUsuarioStatus = document.getElementById('novoUsuarioStatus');
 
   function renderUsuarios(){
     if(!usuariosGrid) return;
-    var usuarios = getUsuarios();
-    var sessao = getSessao();
-    usuariosGrid.innerHTML = '';
-    usuarios.forEach(function(u){
-      var row = document.createElement('div');
-      row.className = 'user-row';
-      var iniciais = (u.nome || '?').trim().split(/\s+/).map(function(p){ return p[0] || ''; }).slice(0, 2).join('').toUpperCase();
-      var tagClasse = u.papel === 'admin' ? 'estrategico' : 'bastidor';
-      row.innerHTML =
-        '<span class="avatar">' + escapeHtml(iniciais) + '</span>' +
-        '<div class="user-row-info"><strong>' + escapeHtml(u.nome) + (sessao && sessao.id === u.id ? ' (você)' : '') + '</strong><span>' + escapeHtml(u.email) + '</span></div>' +
-        '<span class="tag ' + tagClasse + '">' + (u.papel === 'admin' ? 'Admin' : 'Membro') + '</span>' +
-        '<div class="user-row-actions">' +
-          '<button type="button" class="btn-usar" data-acao="senha">Redefinir senha</button>' +
-          '<button type="button" class="imagem-card-remover" data-acao="remover"><svg class="icon"><use href="#icon-trash"/></svg><span>Remover</span></button>' +
-        '</div>';
-      row.querySelector('[data-acao="senha"]').addEventListener('click', function(){
-        var nova = prompt('Nova senha para ' + u.nome + ':');
-        if(!nova) return;
-        var lista = getUsuarios();
-        var alvo = lista.find(function(x){ return x.id === u.id; });
-        if(alvo){
-          alvo.senha = nova;
-          salvarUsuarios(lista);
-          novoUsuarioStatus.textContent = 'Senha de ' + u.nome + ' atualizada.';
-        }
+    if(usuariosContexto){
+      usuariosContexto.textContent = empresaAtualId
+        ? 'Usuários da empresa selecionada no topo.'
+        : 'Usuários da equipe da agência.';
+    }
+    apiFetch('/api/usuarios').then(function(r){
+      if(!r.ok){ usuariosGrid.innerHTML = '<div class="parsed-empty">Não consegui carregar os usuários.</div>'; return; }
+      var usuarios = r.data.usuarios || [];
+      usuariosGrid.innerHTML = '';
+      usuarios.forEach(function(u){
+        var row = document.createElement('div');
+        row.className = 'user-row';
+        var iniciais = (u.nome || '?').trim().split(/\s+/).map(function(p){ return p[0] || ''; }).slice(0, 2).join('').toUpperCase();
+        var tagClasse = u.papel === 'membro' ? 'bastidor' : 'estrategico';
+        row.innerHTML =
+          '<span class="avatar">' + escapeHtml(iniciais) + '</span>' +
+          '<div class="user-row-info"><strong>' + escapeHtml(u.nome) + (sessaoAtual.id === u.id ? ' (você)' : '') + '</strong><span>' + escapeHtml(u.email) + '</span></div>' +
+          '<span class="tag ' + tagClasse + '">' + (ROTULOS_PAPEL[u.papel] || u.papel) + '</span>' +
+          '<div class="user-row-actions">' +
+            '<button type="button" class="btn-usar" data-acao="senha">Redefinir senha</button>' +
+            '<button type="button" class="imagem-card-remover" data-acao="remover"><svg class="icon"><use href="#icon-trash"/></svg><span>Remover</span></button>' +
+          '</div>';
+        row.querySelector('[data-acao="senha"]').addEventListener('click', function(){
+          var nova = prompt('Nova senha para ' + u.nome + ':');
+          if(!nova) return;
+          apiFetch('/api/usuarios/' + u.id, { method: 'PATCH', body: JSON.stringify({ senha: nova }) }).then(function(r2){
+            novoUsuarioStatus.textContent = r2.ok ? ('Senha de ' + u.nome + ' atualizada.') : ((r2.data && r2.data.error) || 'Erro ao atualizar senha.');
+          });
+        });
+        row.querySelector('[data-acao="remover"]').addEventListener('click', function(){
+          if(!confirm('Remover ' + u.nome + '?')) return;
+          apiFetch('/api/usuarios/' + u.id, { method: 'DELETE' }).then(function(r2){
+            if(!r2.ok){ alert((r2.data && r2.data.error) || 'Erro ao remover usuário.'); return; }
+            renderUsuarios();
+          });
+        });
+        usuariosGrid.appendChild(row);
       });
-      row.querySelector('[data-acao="remover"]').addEventListener('click', function(){
-        var lista = getUsuarios();
-        var admins = lista.filter(function(x){ return x.papel === 'admin'; });
-        if(u.papel === 'admin' && admins.length <= 1){
-          alert('Não é possível remover o último administrador.');
-          return;
-        }
-        if(sessao && sessao.id === u.id){
-          alert('Você não pode remover o próprio usuário logado.');
-          return;
-        }
-        if(!confirm('Remover ' + u.nome + '?')) return;
-        salvarUsuarios(lista.filter(function(x){ return x.id !== u.id; }));
-        renderUsuarios();
-      });
-      usuariosGrid.appendChild(row);
     });
   }
 
@@ -1681,23 +1754,108 @@ textarea.escala-input{
     formNovoUsuario.addEventListener('submit', function(e){
       e.preventDefault();
       var nome = document.getElementById('novoUsuarioNome').value.trim();
-      var email = document.getElementById('novoUsuarioEmail').value.trim().toLowerCase();
+      var email = document.getElementById('novoUsuarioEmail').value.trim();
       var senha = document.getElementById('novoUsuarioSenha').value;
       var papel = document.getElementById('novoUsuarioPapel').value;
       if(!nome || !email || !senha){
         novoUsuarioStatus.textContent = 'Preencha todos os campos.';
         return;
       }
-      var lista = getUsuarios();
-      if(lista.some(function(u){ return u.email.toLowerCase() === email; })){
-        novoUsuarioStatus.textContent = 'Já existe um usuário com esse e-mail.';
-        return;
-      }
-      lista.push({ id: gerarId(), nome: nome, email: email, senha: senha, papel: papel });
-      salvarUsuarios(lista);
-      formNovoUsuario.reset();
-      novoUsuarioStatus.textContent = 'Usuário "' + nome + '" criado.';
-      renderUsuarios();
+      apiFetch('/api/usuarios', { method: 'POST', body: JSON.stringify({ nome: nome, email: email, senha: senha, papel: papel }) })
+        .then(function(r){
+          if(!r.ok){ novoUsuarioStatus.textContent = (r.data && r.data.error) || 'Erro ao criar usuário.'; return; }
+          formNovoUsuario.reset();
+          novoUsuarioStatus.textContent = 'Usuário "' + nome + '" criado.';
+          renderUsuarios();
+        });
+    });
+  }
+
+  /* ---- painel: empresas-cliente (só agência) ---- */
+  var empresasGrid = document.getElementById('empresasGrid');
+  var formNovaEmpresa = document.getElementById('formNovaEmpresa');
+  var novaEmpresaStatus = document.getElementById('novaEmpresaStatus');
+  var empresaModal = document.getElementById('empresaModal');
+  var empresaModalClose = document.getElementById('empresaModalClose');
+  var formEmpresaConfig = document.getElementById('formEmpresaConfig');
+  var empresaConfigStatus = document.getElementById('empresaConfigStatus');
+
+  function abrirConfigEmpresa(empresa){
+    document.getElementById('empresaModalTitulo').textContent = 'Configurar ' + empresa.nome;
+    document.getElementById('empresaConfigId').value = empresa.id;
+    document.getElementById('empresaWindsorApiKey').value = '';
+    document.getElementById('empresaWindsorConnector').value = '';
+    document.getElementById('empresaWindsorAccountId').value = '';
+    empresaConfigStatus.textContent = empresa.instagramConectado
+      ? 'Instagram já conectado. Preencha só o que quiser trocar.'
+      : 'Instagram ainda não conectado pra essa empresa.';
+    empresaModal.hidden = false;
+  }
+  if(empresaModalClose){
+    empresaModalClose.addEventListener('click', function(){ empresaModal.hidden = true; });
+  }
+  if(formEmpresaConfig){
+    formEmpresaConfig.addEventListener('submit', function(e){
+      e.preventDefault();
+      var id = document.getElementById('empresaConfigId').value;
+      var body = {
+        windsorApiKey: document.getElementById('empresaWindsorApiKey').value.trim() || undefined,
+        windsorConnector: document.getElementById('empresaWindsorConnector').value.trim() || undefined,
+        windsorAccountId: document.getElementById('empresaWindsorAccountId').value.trim() || undefined
+      };
+      apiFetch('/api/empresas/' + id, { method: 'PATCH', body: JSON.stringify(body) }).then(function(r){
+        if(!r.ok){ empresaConfigStatus.textContent = (r.data && r.data.error) || 'Erro ao salvar.'; return; }
+        empresaConfigStatus.textContent = 'Salvo.';
+        renderEmpresas();
+        setTimeout(function(){ empresaModal.hidden = true; }, 600);
+      });
+    });
+  }
+
+  function renderEmpresas(){
+    if(!empresasGrid) return;
+    apiFetch('/api/empresas').then(function(r){
+      if(!r.ok){ empresasGrid.innerHTML = '<div class="parsed-empty">Não consegui carregar as empresas.</div>'; return; }
+      empresasDaAgencia = r.data.empresas || [];
+      popularSwitcherEmpresas();
+      empresasGrid.innerHTML = '';
+      empresasDaAgencia.forEach(function(emp){
+        var row = document.createElement('div');
+        row.className = 'user-row';
+        row.innerHTML =
+          '<span class="avatar"><svg class="icon"><use href="#icon-building"/></svg></span>' +
+          '<div class="user-row-info"><strong>' + escapeHtml(emp.nome) + '</strong><span>' + escapeHtml(emp.slug) + '</span></div>' +
+          '<span class="chip ' + (emp.instagramConectado ? 'ok' : 'pending') + '"><span class="dot"></span>' + (emp.instagramConectado ? 'Instagram conectado' : 'Instagram pendente') + '</span>' +
+          '<div class="user-row-actions">' +
+            '<button type="button" class="btn-usar" data-acao="config">Configurar</button>' +
+            '<button type="button" class="imagem-card-remover" data-acao="remover"><svg class="icon"><use href="#icon-trash"/></svg><span>Remover</span></button>' +
+          '</div>';
+        row.querySelector('[data-acao="config"]').addEventListener('click', function(){ abrirConfigEmpresa(emp); });
+        row.querySelector('[data-acao="remover"]').addEventListener('click', function(){
+          if(!confirm('Remover a empresa "' + emp.nome + '"? Isso apaga os usuários e o conteúdo dela também.')) return;
+          apiFetch('/api/empresas/' + emp.id, { method: 'DELETE' }).then(function(r2){
+            if(!r2.ok){ alert((r2.data && r2.data.error) || 'Erro ao remover empresa.'); return; }
+            if(empresaAtualId === emp.id){ empresaAtualId = null; aplicarPermissoes(); }
+            renderEmpresas();
+          });
+        });
+        empresasGrid.appendChild(row);
+      });
+    });
+  }
+
+  if(formNovaEmpresa){
+    formNovaEmpresa.addEventListener('submit', function(e){
+      e.preventDefault();
+      var nome = document.getElementById('novaEmpresaNome').value.trim();
+      var slug = document.getElementById('novaEmpresaSlug').value.trim().toLowerCase().replace(/\s+/g, '-');
+      if(!nome || !slug){ novaEmpresaStatus.textContent = 'Preencha nome e identificador.'; return; }
+      apiFetch('/api/empresas', { method: 'POST', body: JSON.stringify({ nome: nome, slug: slug }) }).then(function(r){
+        if(!r.ok){ novaEmpresaStatus.textContent = (r.data && r.data.error) || 'Erro ao criar empresa.'; return; }
+        formNovaEmpresa.reset();
+        novaEmpresaStatus.textContent = 'Empresa "' + nome + '" criada.';
+        renderEmpresas();
+      });
     });
   }
 
