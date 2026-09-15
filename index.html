@@ -216,7 +216,6 @@ body{
   .rail-backdrop.show{display:block;}
   .topbar{border-radius:0;top:0;}
   .content{padding:18px 16px 40px;}
-  .week-grid{grid-template-columns:1fr;}
   .donut-wrap{flex-wrap:wrap;}
 }
 
@@ -361,6 +360,7 @@ body{
 /* ---- grade semanal ---- */
 .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;}
 @media (max-width:1050px){.week-grid{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));}}
+@media (max-width:640px){.week-grid{grid-template-columns:1fr;}}
 .day-card{
   border-radius:var(--radius-sm);
   box-shadow:var(--shadow-soft);
@@ -368,8 +368,27 @@ body{
   display:flex;
   flex-direction:column;
   gap:8px;
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
 }
-.day-name{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);font-weight:600;display:flex;align-items:center;}
+.day-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px -12px rgba(20,20,20,.22);}
+.day-card[data-today="true"]{
+  border-color:var(--accent);
+  box-shadow:0 0 0 1.5px var(--accent), var(--shadow-soft);
+}
+.day-card[data-status="bloqueado"]{
+  border-style:dashed;
+  opacity:.72;
+}
+.day-name{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.day-date{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;letter-spacing:0;
+  color:var(--ink-faint);
+  background:rgba(29,29,31,.05);
+  flex:0 0 auto;
+}
+.day-card[data-today="true"] .day-date{background:var(--accent);color:#fff;}
 .day-title{font-size:.92rem;font-weight:600;line-height:1.35;}
 .day-meta{font-size:.78rem;color:var(--ink-soft);margin-top:auto;display:flex;flex-direction:column;gap:5px;}
 .day-meta .who{display:flex;align-items:center;gap:6px;}
@@ -393,7 +412,18 @@ body{
 .story-dot.estrategico{background:var(--estrategico);}
 .story-mini-title{flex:1;min-width:0;}
 .story-mini-who{color:var(--ink-soft);font-size:.78rem;white-space:nowrap;flex:0 0 auto;}
-.day-empty{color:var(--ink-soft);font-size:.85rem;font-style:italic;text-align:center;padding:24px 8px;line-height:1.6;}
+.day-empty{
+  color:var(--ink-faint);
+  font-size:.82rem;
+  text-align:center;
+  padding:22px 6px 8px;
+  line-height:1.6;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.day-empty .icon{width:18px;height:18px;color:var(--ink-faint);opacity:.7;}
 @media (max-width:600px){
   .story-mini{flex-wrap:wrap;align-items:flex-start;}
   .story-mini-who{white-space:normal;flex:1 1 100%;margin-top:2px;padding-left:16px;}
@@ -826,33 +856,33 @@ textarea.escala-input{
         </div>
 
         <div class="week-grid">
-          <div class="day-card" id="day-segunda" data-status="livre">
+          <div class="day-card" id="day-segunda" data-status="livre" data-today="false">
             <span class="day-name">Segunda</span>
-            <div class="day-empty">Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</span></div>
           </div>
-          <div class="day-card" id="day-terca" data-status="livre">
+          <div class="day-card" id="day-terca" data-status="livre" data-today="false">
             <span class="day-name">Terça</span>
-            <div class="day-empty">Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</span></div>
           </div>
-          <div class="day-card" id="day-quarta" data-status="livre">
+          <div class="day-card" id="day-quarta" data-status="livre" data-today="false">
             <span class="day-name">Quarta</span>
-            <div class="day-empty">Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</span></div>
           </div>
-          <div class="day-card" id="day-quinta" data-status="livre">
+          <div class="day-card" id="day-quinta" data-status="livre" data-today="false">
             <span class="day-name">Quinta</span>
-            <div class="day-empty">Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</span></div>
           </div>
-          <div class="day-card" id="day-sexta" data-status="livre">
+          <div class="day-card" id="day-sexta" data-status="livre" data-today="false">
             <span class="day-name">Sexta</span>
-            <div class="day-empty">Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Nenhuma agenda lida ainda.<br>Vá em Escala de Stories e clique em "Ler agenda da semana".</span></div>
           </div>
-          <div class="day-card" id="day-sabado" data-status="livre">
+          <div class="day-card" id="day-sabado" data-status="livre" data-today="false">
             <span class="day-name">Sábado</span>
-            <div class="day-empty">Sábado não entra na leitura automática da agenda.<br>Use um carrossel do Banco de Ideias se quiser preencher.</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Sábado não entra na leitura automática da agenda.<br>Use um carrossel do Banco de Ideias se quiser preencher.</span></div>
           </div>
-          <div class="day-card" id="day-domingo" data-status="bloqueado">
+          <div class="day-card" id="day-domingo" data-status="bloqueado" data-today="false">
             <span class="day-name">Domingo</span>
-            <div class="day-empty">Sem Stories previstos.<br>Só entra algo se houver evento na agenda.</div>
+            <div class="day-empty"><svg class="icon"><use href="#icon-calendar"/></svg><span>Sem Stories previstos.<br>Só entra algo se houver evento na agenda.</span></div>
           </div>
         </div>
       </section>
@@ -1198,6 +1228,25 @@ textarea.escala-input{
     if(el) el.textContent = calcularSemanaAtual().texto;
   })();
 
+  (function popularDatasDaGrade(){
+    var semana = calcularSemanaAtual();
+    var ids = ['segunda','terca','quarta','quinta','sexta','sabado','domingo'];
+    var hoje = new Date();
+    var hojeChave = hoje.getFullYear() + '-' + hoje.getMonth() + '-' + hoje.getDate();
+    ids.forEach(function(id, offset){
+      var dayCard = document.getElementById('day-' + id);
+      if(!dayCard) return;
+      var data = new Date(semana.segunda.getFullYear(), semana.segunda.getMonth(), semana.segunda.getDate() + offset);
+      var chave = data.getFullYear() + '-' + data.getMonth() + '-' + data.getDate();
+      var dayNameEl = dayCard.querySelector('.day-name');
+      var badge = document.createElement('span');
+      badge.className = 'day-date';
+      badge.textContent = String(data.getDate());
+      if(dayNameEl) dayNameEl.appendChild(badge);
+      if(chave === hojeChave) dayCard.setAttribute('data-today', 'true');
+    });
+  })();
+
   function atualizarVisaoGeral(){
     var contagem = contarPilaresDaGrade();
     var total = contagem.bastidorCount + contagem.estrategicoCount;
@@ -1447,7 +1496,7 @@ textarea.escala-input{
       if(!d.itens.length){
         var vazio = document.createElement('div');
         vazio.className = 'day-empty';
-        vazio.innerHTML = 'Nenhuma reunião nem gravação na agenda essa semana.<br>Use um carrossel do Banco de Ideias pra preencher os Stories.';
+        vazio.innerHTML = '<svg class="icon"><use href="#icon-calendar"/></svg><span>Nenhuma reunião nem gravação na agenda essa semana.<br>Use um carrossel do Banco de Ideias pra preencher os Stories.</span>';
         dayCard.appendChild(vazio);
         dayCard.setAttribute('data-status', 'livre');
         return;
@@ -1465,7 +1514,7 @@ textarea.escala-input{
         var faltam = document.createElement('div');
         faltam.className = 'day-empty';
         faltam.style.padding = '14px 4px';
-        faltam.textContent = 'Faltam ' + (5 - d.itens.length) + ' Stories. Use um carrossel no Banco de Ideias pra completar o dia.';
+        faltam.innerHTML = '<svg class="icon"><use href="#icon-calendar"/></svg><span>Faltam ' + (5 - d.itens.length) + ' Stories. Use um carrossel no Banco de Ideias pra completar o dia.</span>';
         dayCard.appendChild(faltam);
       }
       dayCard.setAttribute('data-status', 'agenda');
