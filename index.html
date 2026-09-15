@@ -25,6 +25,9 @@
 <symbol id="icon-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
 <symbol id="icon-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V9a1 1 0 011-1z"/><circle cx="12" cy="13.5" r="3.3"/></symbol>
 <symbol id="icon-instagram" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.2" cy="6.8" r="1"/></symbol>
+<symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.2" cy="9" r="2.6"/><path d="M15.6 13.2c2.5.5 4.4 2.7 4.4 5.4"/></symbol>
+<symbol id="icon-logout" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 00-1 1v14a1 1 0 001 1h4M16 16l4-4-4-4M20 12H9"/></symbol>
+<symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M7.5 10.5V7a4.5 4.5 0 019 0v3.5"/></symbol>
 <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13M10 11v6M14 11v6"/></symbol>
 <symbol id="icon-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3M9 21h6"/></symbol>
 <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></symbol>
@@ -62,6 +65,7 @@
 }
 
 *{box-sizing:border-box;}
+[hidden]{display:none!important;}
 html,body{height:100%;}
 body{
   margin:0;padding:0;
@@ -99,6 +103,56 @@ body{
 .panel-app button{font-family:inherit;cursor:pointer;}
 .panel-app :focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .icon{width:16px;height:16px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ---- autenticação ---- */
+.auth-screen{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+.auth-card{
+  width:100%;
+  max-width:380px;
+  background:var(--panel);
+  backdrop-filter:blur(var(--blur)) saturate(1.4);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.4);
+  border:1px solid rgba(255,255,255,.55);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-card);
+  padding:32px 28px;
+}
+.auth-lock{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--accent-soft);color:var(--accent);
+  margin-bottom:16px;
+}
+.auth-lock .icon{width:18px;height:18px;}
+.auth-card .wordmark{font-size:1.3rem;color:var(--ink);font-family:'Archivo',system-ui,sans-serif;font-weight:800;letter-spacing:-.02em;}
+.auth-card .wordmark em{font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-weight:400;color:var(--accent);}
+.auth-card .tagline{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin:4px 0 20px;}
+.auth-card h2{font-family:'Archivo',system-ui,sans-serif;font-weight:800;font-size:1.25rem;margin:0 0 6px;letter-spacing:-.02em;}
+.auth-sub{font-size:.85rem;color:var(--ink-soft);margin:0 0 20px;line-height:1.5;}
+.auth-field{margin-bottom:14px;}
+.auth-field label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);font-weight:600;margin-bottom:5px;}
+.auth-field input{
+  width:100%;
+  font-family:'Inter',sans-serif;
+  font-size:.9rem;
+  padding:10px 12px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,.6);
+  color:var(--ink);
+}
+.auth-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.auth-note{margin-top:18px;font-size:.78rem;color:var(--ink-faint);text-align:center;line-height:1.6;}
+.link-btn{background:none;border:none;color:var(--accent);font-weight:600;font-size:inherit;padding:0;cursor:pointer;text-decoration:underline;}
 
 /* ---- rail ---- */
 .rail{
@@ -263,6 +317,13 @@ body{
   background:var(--good);
 }
 .chip-icon.pending .chip-status{background:var(--warn);}
+.topbar-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-left:auto;}
+.topbar-user{display:flex;align-items:center;gap:10px;}
+.topbar-user-info{display:flex;flex-direction:column;align-items:flex-end;line-height:1.3;}
+.topbar-user-info strong{font-size:.83rem;font-weight:600;}
+.topbar-user-info span{font-size:.68rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;}
+button.chip-icon{cursor:pointer;}
+button.chip-icon:hover{background:rgba(255,255,255,.8);color:var(--ink);}
 
 .content{padding:0 2px 60px;max-width:1180px;}
 .view{display:none;animation:fade .3s ease;}
@@ -627,6 +688,37 @@ textarea.escala-input{
 }
 .field-value[contenteditable="true"]:focus{border-color:var(--accent);outline:none;}
 .field-value.placeholder{color:var(--ink-soft);}
+.field-select{
+  width:100%;
+  font-family:'Inter',sans-serif;
+  font-size:.87rem;
+  padding:9px 12px;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--line-strong);
+  background:rgba(255,255,255,.6);
+  color:var(--ink);
+}
+.field-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+
+/* ---- administração de usuários ---- */
+.user-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:var(--radius-sm);
+  background:var(--panel);
+  backdrop-filter:blur(var(--blur)) saturate(1.3);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.3);
+  border:1px solid rgba(255,255,255,.55);
+  flex-wrap:wrap;
+}
+.user-row .avatar{width:34px;height:34px;font-size:.8rem;}
+.user-row-info{display:flex;flex-direction:column;flex:1;min-width:140px;gap:1px;}
+.user-row-info strong{font-size:.9rem;font-weight:600;}
+.user-row-info span{font-size:.78rem;color:var(--ink-soft);}
+.user-row-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+.user-row-actions .imagem-card-remover{border-top:none;padding:8px 10px;}
 
 /* ---- ideias ---- */
 .idea-card-legend{
@@ -742,7 +834,33 @@ textarea.escala-input{
 
 </style>
 
-<div class="panel-app">
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-lock"><svg class="icon"><use href="#icon-lock"/></svg></div>
+    <div class="wordmark">InScope <em>Marketing</em></div>
+    <div class="tagline">Central de conteúdo</div>
+    <h2>Entrar</h2>
+    <p class="auth-sub">Acesso restrito à equipe. Use o e-mail e a senha cadastrados pelo administrador.</p>
+    <form id="loginForm">
+      <div class="auth-field">
+        <label for="loginEmail">E-mail</label>
+        <input type="email" id="loginEmail" autocomplete="username" required>
+      </div>
+      <div class="auth-field">
+        <label for="loginSenha">Senha</label>
+        <input type="password" id="loginSenha" autocomplete="current-password" required>
+      </div>
+      <div class="hint" id="loginStatus"></div>
+      <button class="btn-primary" type="submit" style="width:100%;">Entrar</button>
+    </form>
+    <div class="auth-note">
+      Protótipo sem backend próprio — o acesso é controlado só neste navegador.
+      <button type="button" id="showDemoCreds" class="link-btn">Ver credencial de demonstração</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel-app" id="appRoot" hidden>
   <aside class="rail">
     <div class="rail-brand">
       <div class="wordmark">InScope <em class="voice">Marketing</em></div>
@@ -770,6 +888,10 @@ textarea.escala-input{
       <button class="rail-btn" data-view="diagnostico"><span class="icon-chip"><svg class="icon"><use href="#icon-search"/></svg></span><span class="label">Diagnóstico</span></button>
       <button class="rail-btn" data-view="performance"><span class="icon-chip"><svg class="icon"><use href="#icon-trending"/></svg></span><span class="label">Performance</span></button>
       </div>
+      <div class="nav-group only-admin" id="navAdminGroup" hidden>
+        <div class="nav-group-label">Administração</div>
+      <button class="rail-btn" data-view="usuarios"><span class="icon-chip"><svg class="icon"><use href="#icon-users"/></svg></span><span class="label">Usuários</span></button>
+      </div>
     </nav>
     <div class="rail-foot">Nicho: highticket médicos &amp; empresários. Protótipo, dados de exemplo.</div>
   </aside>
@@ -780,10 +902,19 @@ textarea.escala-input{
     <header class="topbar">
       <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menu"><svg class="icon"><use href="#icon-menu"/></svg></button>
       <div class="topbar-week">Semana de <strong id="semanaLabel">—</strong> · proporção alvo <strong>60% bastidor / 40% estratégico</strong></div>
-      <div class="chips">
-        <span class="chip-icon ok" title="Agenda (reuniões) conectada"><svg class="icon"><use href="#icon-calendar"/></svg><span class="chip-status"></span></span>
-        <span class="chip-icon ok" title="ClickUp conectado"><svg class="icon"><use href="#icon-check"/></svg><span class="chip-status"></span></span>
-        <span class="chip-icon ok" title="Instagram conectado"><svg class="icon"><use href="#icon-instagram"/></svg><span class="chip-status"></span></span>
+      <div class="topbar-right">
+        <div class="chips">
+          <span class="chip-icon ok" title="Agenda (reuniões) conectada"><svg class="icon"><use href="#icon-calendar"/></svg><span class="chip-status"></span></span>
+          <span class="chip-icon ok" title="ClickUp conectado"><svg class="icon"><use href="#icon-check"/></svg><span class="chip-status"></span></span>
+          <span class="chip-icon ok" title="Instagram conectado"><svg class="icon"><use href="#icon-instagram"/></svg><span class="chip-status"></span></span>
+        </div>
+        <div class="topbar-user">
+          <div class="topbar-user-info">
+            <strong id="userNome">—</strong>
+            <span id="userPapel">Membro</span>
+          </div>
+          <button class="chip-icon" id="btnLogout" type="button" title="Sair"><svg class="icon"><use href="#icon-logout"/></svg></button>
+        </div>
       </div>
     </header>
 
@@ -1203,6 +1334,49 @@ textarea.escala-input{
         <div class="grid-3" id="perfGrid" style="margin-top:16px;"></div>
       </section>
 
+      <!-- USUÁRIOS (só admin) -->
+      <section class="view only-admin" id="usuarios" hidden>
+        <div class="view-head">
+          <div class="eyebrow">Administração</div>
+          <h2>Usuários</h2>
+          <p>Controle quem entra neste painel. Isso fica salvo só neste navegador — é um controle de acesso do protótipo, não uma autenticação de servidor.</p>
+        </div>
+
+        <div class="card">
+          <h3>Novo usuário</h3>
+          <div class="sub">Defina uma senha temporária; a pessoa pode pedir pra redefinir depois.</div>
+          <form id="formNovoUsuario" style="display:flex;flex-direction:column;gap:12px;margin-top:6px;max-width:420px;">
+            <div>
+              <div class="field-label">Nome</div>
+              <input type="text" id="novoUsuarioNome" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" required>
+            </div>
+            <div>
+              <div class="field-label">E-mail</div>
+              <input type="email" id="novoUsuarioEmail" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" required>
+            </div>
+            <div>
+              <div class="field-label">Senha temporária</div>
+              <input type="text" id="novoUsuarioSenha" class="pin-input" style="letter-spacing:normal;text-align:left;font-size:.85rem;width:100%;" required>
+            </div>
+            <div>
+              <div class="field-label">Papel</div>
+              <select id="novoUsuarioPapel" class="field-select">
+                <option value="membro">Membro</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button class="btn-primary" type="submit" style="align-self:flex-start;margin-top:0;">Criar usuário</button>
+          </form>
+          <div class="hint" id="novoUsuarioStatus"></div>
+        </div>
+
+        <div class="card" style="margin-top:20px;">
+          <h3>Usuários cadastrados</h3>
+          <div class="sub">Lista local a este navegador — outros dispositivos não compartilham essa lista.</div>
+          <div id="usuariosGrid" style="display:flex;flex-direction:column;gap:10px;margin-top:14px;"></div>
+        </div>
+      </section>
+
     </div>
   </div>
 </div>
@@ -1317,6 +1491,214 @@ textarea.escala-input{
 
   function escapeHtml(s){
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* =====================================================================
+     Autenticação e administração de usuários
+     Protótipo sem backend: a lista de usuários e a sessão ficam salvas no
+     localStorage DESTE navegador. Isso serve como uma trava de acesso na
+     interface, não como segurança de verdade — qualquer pessoa com acesso
+     ao devtools ou ao código-fonte consegue ler ou contornar isso, e as
+     rotas /api/* usadas pelo painel continuam abertas independente do
+     login. Não guarde aqui nenhuma senha que também seja usada em outro
+     lugar.
+     ===================================================================== */
+  var LS_USUARIOS = 'inscope_usuarios';
+  var LS_SESSAO = 'inscope_sessao';
+  // Alguns navegadores/contextos bloqueiam localStorage (aba anônima restrita,
+  // política corporativa, preview em iframe/sandbox). Nesses casos o painel
+  // continua funcionando dentro da mesma sessão de página, só não persiste
+  // entre recarregamentos — por isso todo acesso ao storage é protegido e
+  // cai num fallback em memória.
+  var usuariosMemoria = null;
+  var sessaoMemoria = null;
+
+  function gerarId(){
+    return 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function getUsuarios(){
+    try{
+      var raw = localStorage.getItem(LS_USUARIOS);
+      if(raw) return JSON.parse(raw);
+    } catch(e){}
+    if(usuariosMemoria) return usuariosMemoria;
+    var seed = [{
+      id: gerarId(),
+      nome: 'Administrador',
+      email: 'admin@inscopemarketing.com',
+      senha: 'inscope2025',
+      papel: 'admin'
+    }];
+    usuariosMemoria = seed;
+    try{ localStorage.setItem(LS_USUARIOS, JSON.stringify(seed)); } catch(e){}
+    return seed;
+  }
+  function salvarUsuarios(lista){
+    usuariosMemoria = lista;
+    try{ localStorage.setItem(LS_USUARIOS, JSON.stringify(lista)); } catch(e){}
+  }
+  function getSessao(){
+    try{
+      var raw = localStorage.getItem(LS_SESSAO);
+      return raw ? JSON.parse(raw) : sessaoMemoria;
+    } catch(e){ return sessaoMemoria; }
+  }
+  function salvarSessao(usuario){
+    var sessao = { id: usuario.id, nome: usuario.nome, email: usuario.email, papel: usuario.papel };
+    sessaoMemoria = sessao;
+    try{ localStorage.setItem(LS_SESSAO, JSON.stringify(sessao)); } catch(e){}
+  }
+  function limparSessao(){
+    sessaoMemoria = null;
+    try{ localStorage.removeItem(LS_SESSAO); } catch(e){}
+  }
+
+  var authScreen = document.getElementById('authScreen');
+  var appRoot = document.getElementById('appRoot');
+  var loginForm = document.getElementById('loginForm');
+  var loginStatus = document.getElementById('loginStatus');
+
+  function aplicarPermissoesDeAdmin(usuario){
+    var ehAdmin = usuario.papel === 'admin';
+    document.querySelectorAll('.only-admin').forEach(function(el){ el.hidden = !ehAdmin; });
+    if(ehAdmin) renderUsuarios();
+  }
+
+  function entrarNoApp(usuario){
+    if(authScreen) authScreen.hidden = true;
+    if(appRoot) appRoot.hidden = false;
+    var nomeEl = document.getElementById('userNome');
+    if(nomeEl) nomeEl.textContent = usuario.nome;
+    var papelEl = document.getElementById('userPapel');
+    if(papelEl) papelEl.textContent = usuario.papel === 'admin' ? 'Admin' : 'Membro';
+    aplicarPermissoesDeAdmin(usuario);
+  }
+
+  (function initAuth(){
+    getUsuarios();
+    var sessao = getSessao();
+    if(sessao){
+      var atual = getUsuarios().find(function(u){ return u.id === sessao.id; });
+      if(atual){ entrarNoApp(atual); return; }
+      limparSessao();
+    }
+    if(authScreen) authScreen.hidden = false;
+    if(appRoot) appRoot.hidden = true;
+  })();
+
+  if(loginForm){
+    loginForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      var senha = document.getElementById('loginSenha').value;
+      var achado = getUsuarios().find(function(u){
+        return u.email.toLowerCase() === email && u.senha === senha;
+      });
+      if(!achado){
+        loginStatus.textContent = 'E-mail ou senha incorretos.';
+        return;
+      }
+      loginStatus.textContent = '';
+      salvarSessao(achado);
+      entrarNoApp(achado);
+    });
+  }
+
+  var showDemoCreds = document.getElementById('showDemoCreds');
+  if(showDemoCreds){
+    showDemoCreds.addEventListener('click', function(){
+      var usuarios = getUsuarios();
+      var admin = usuarios.find(function(u){ return u.papel === 'admin'; }) || usuarios[0];
+      if(!admin) return;
+      document.getElementById('loginEmail').value = admin.email;
+      document.getElementById('loginSenha').value = admin.senha;
+    });
+  }
+
+  var btnLogout = document.getElementById('btnLogout');
+  if(btnLogout){
+    btnLogout.addEventListener('click', function(){
+      limparSessao();
+      location.reload();
+    });
+  }
+
+  /* ---- painel: administração de usuários ---- */
+  var usuariosGrid = document.getElementById('usuariosGrid');
+  var formNovoUsuario = document.getElementById('formNovoUsuario');
+  var novoUsuarioStatus = document.getElementById('novoUsuarioStatus');
+
+  function renderUsuarios(){
+    if(!usuariosGrid) return;
+    var usuarios = getUsuarios();
+    var sessao = getSessao();
+    usuariosGrid.innerHTML = '';
+    usuarios.forEach(function(u){
+      var row = document.createElement('div');
+      row.className = 'user-row';
+      var iniciais = (u.nome || '?').trim().split(/\s+/).map(function(p){ return p[0] || ''; }).slice(0, 2).join('').toUpperCase();
+      var tagClasse = u.papel === 'admin' ? 'estrategico' : 'bastidor';
+      row.innerHTML =
+        '<span class="avatar">' + escapeHtml(iniciais) + '</span>' +
+        '<div class="user-row-info"><strong>' + escapeHtml(u.nome) + (sessao && sessao.id === u.id ? ' (você)' : '') + '</strong><span>' + escapeHtml(u.email) + '</span></div>' +
+        '<span class="tag ' + tagClasse + '">' + (u.papel === 'admin' ? 'Admin' : 'Membro') + '</span>' +
+        '<div class="user-row-actions">' +
+          '<button type="button" class="btn-usar" data-acao="senha">Redefinir senha</button>' +
+          '<button type="button" class="imagem-card-remover" data-acao="remover"><svg class="icon"><use href="#icon-trash"/></svg><span>Remover</span></button>' +
+        '</div>';
+      row.querySelector('[data-acao="senha"]').addEventListener('click', function(){
+        var nova = prompt('Nova senha para ' + u.nome + ':');
+        if(!nova) return;
+        var lista = getUsuarios();
+        var alvo = lista.find(function(x){ return x.id === u.id; });
+        if(alvo){
+          alvo.senha = nova;
+          salvarUsuarios(lista);
+          novoUsuarioStatus.textContent = 'Senha de ' + u.nome + ' atualizada.';
+        }
+      });
+      row.querySelector('[data-acao="remover"]').addEventListener('click', function(){
+        var lista = getUsuarios();
+        var admins = lista.filter(function(x){ return x.papel === 'admin'; });
+        if(u.papel === 'admin' && admins.length <= 1){
+          alert('Não é possível remover o último administrador.');
+          return;
+        }
+        if(sessao && sessao.id === u.id){
+          alert('Você não pode remover o próprio usuário logado.');
+          return;
+        }
+        if(!confirm('Remover ' + u.nome + '?')) return;
+        salvarUsuarios(lista.filter(function(x){ return x.id !== u.id; }));
+        renderUsuarios();
+      });
+      usuariosGrid.appendChild(row);
+    });
+  }
+
+  if(formNovoUsuario){
+    formNovoUsuario.addEventListener('submit', function(e){
+      e.preventDefault();
+      var nome = document.getElementById('novoUsuarioNome').value.trim();
+      var email = document.getElementById('novoUsuarioEmail').value.trim().toLowerCase();
+      var senha = document.getElementById('novoUsuarioSenha').value;
+      var papel = document.getElementById('novoUsuarioPapel').value;
+      if(!nome || !email || !senha){
+        novoUsuarioStatus.textContent = 'Preencha todos os campos.';
+        return;
+      }
+      var lista = getUsuarios();
+      if(lista.some(function(u){ return u.email.toLowerCase() === email; })){
+        novoUsuarioStatus.textContent = 'Já existe um usuário com esse e-mail.';
+        return;
+      }
+      lista.push({ id: gerarId(), nome: nome, email: email, senha: senha, papel: papel });
+      salvarUsuarios(lista);
+      formNovoUsuario.reset();
+      novoUsuarioStatus.textContent = 'Usuário "' + nome + '" criado.';
+      renderUsuarios();
+    });
   }
 
   var criarTarefasStatus = document.getElementById('criarTarefasSemanaStatus');
